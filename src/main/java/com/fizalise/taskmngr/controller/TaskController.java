@@ -1,6 +1,8 @@
 package com.fizalise.taskmngr.controller;
 
+import com.fizalise.taskmngr.dto.TaskResponse;
 import com.fizalise.taskmngr.entity.Task;
+import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.findAllTasks();
+    public List<TaskResponse> getAllTasks() {
+        return taskMapper.toResponses(taskService.findAllTasks());
     }
 }
