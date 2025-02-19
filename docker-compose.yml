@@ -1,0 +1,16 @@
+services:
+  task-management-db:
+    container_name: task-management-db
+    image: postgres:17.2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+      - task-management-db-data:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"
+    restart: unless-stopped
+volumes:
+  task-management-db-data:
