@@ -1,6 +1,5 @@
 package com.fizalise.taskmngr.repository;
 
-import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -2,7 +2,6 @@ package com.fizalise.taskmngr.controller;
 
 import com.fizalise.taskmngr.dto.TaskRequest;
 import com.fizalise.taskmngr.dto.TaskResponse;
-import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import lombok.RequiredArgsConstructor;

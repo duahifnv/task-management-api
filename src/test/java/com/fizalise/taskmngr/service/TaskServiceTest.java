@@ -1,6 +1,5 @@
 package com.fizalise.taskmngr.service;
 
-import com.fizalise.taskmngr.dto.TaskRequest;
 import com.fizalise.taskmngr.entity.Priority;
 import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.entity.Task;
@@ -9,10 +8,9 @@ import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.repository.TaskRepository;
 import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -22,15 +20,10 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Slf4j

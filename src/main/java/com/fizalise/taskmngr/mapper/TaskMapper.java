@@ -7,7 +7,6 @@ import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.UserNotFoundException;
 import com.fizalise.taskmngr.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
