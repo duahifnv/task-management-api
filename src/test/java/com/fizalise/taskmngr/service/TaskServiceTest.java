@@ -4,12 +4,12 @@ import com.fizalise.taskmngr.entity.Priority;
 import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
+import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.repository.TaskRepository;
 import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,9 +19,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.Date;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -69,5 +67,18 @@ class TaskServiceTest {
         assertEquals(allTasks.getFirst().getTaskId(),
                 UUID.fromString("9e976257-f60b-418e-ae39-e34bb78d9e58"));
         assertEquals(allTasks.size(), 1);
+    }
+    @Test
+    void findTask() {
+        var task = taskService.findTask(UUID.fromString("9e976257-f60b-418e-ae39-e34bb78d9e58"));
+        assertNotNull(task);
+    }
+    @Test
+    void findTask_throwsResourceNotFoundException() {
+        taskRepository.deleteAll();
+        assertThrows(ResourceNotFoundException.class,
+                () -> taskService.findTask(
+                        UUID.fromString("9e976257-f60b-418e-ae39-e34bb78d9e58"))
+        );
     }
 }
