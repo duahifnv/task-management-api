@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: task-management-api
+  datasource:
+    url: jdbc:postgresql://localhost:15432/task_management
+    username: postgres
+    password: secret
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+server:
+  port: 9000
+  error:
+    include-message: always
+  servlet:
+    context-path: /api/v1
