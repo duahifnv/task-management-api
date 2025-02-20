@@ -37,8 +37,8 @@ public class Task {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tasks_executors",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "task_id")
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Collection<User> executorList;
 }
