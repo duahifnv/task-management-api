@@ -1,6 +1,7 @@
 package com.fizalise.taskmngr.service;
 
 import com.fizalise.taskmngr.dto.TaskRequest;
+import com.fizalise.taskmngr.dto.TaskResponse;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
@@ -27,6 +28,11 @@ public class TaskService {
         return taskRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "creationDate")
         );
+    }
+    public List<Task> findAllTasks(String executorEmail) {
+        User taskExecutor = userRepository.findByEmail(executorEmail)
+                .orElseThrow(UserNotFoundException::new);
+        return taskRepository.findAllByExecutor(taskExecutor);
     }
     public Task findTask(UUID id) {
         return taskRepository.findById(id)
