@@ -37,4 +37,9 @@ public class TaskController {
                 taskService.createTask(taskRequest, principal.getName())
         );
     }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteTask(@PathVariable UUID id) {
+        taskService.removeTask(id);
+    }
 }

@@ -37,4 +37,10 @@ public class TaskService {
                 taskMapper.toTask(taskRequest, taskAuthor)
         );
     }
+    public void removeTask(UUID id) {
+        if (!taskRepository.existsByTaskId(id)) {
+            throw new ResourceNotFoundException();
+        }
+        taskRepository.deleteById(id);
+    }
 }
