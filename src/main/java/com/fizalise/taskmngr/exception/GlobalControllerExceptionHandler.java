@@ -1,7 +1,5 @@
 package com.fizalise.taskmngr.exception;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fizalise.taskmngr.dto.ValidationErrorResponse;
 import com.fizalise.taskmngr.dto.Violation;
 import io.jsonwebtoken.JwtException;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -24,7 +21,6 @@ import java.util.List;
 @RestControllerAdvice
 @Slf4j
 public class GlobalControllerExceptionHandler {
-    // Обработка исключений, которые так и не были обработаны
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handle(Exception e) {
@@ -34,18 +30,18 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<?> handle(NoResourceFoundException e) {
-        log.info("Не найден ресурс: " + e.getResourcePath());
+        log.warn("Не найден ресурс: " + e.getResourcePath());
         return ResponseEntity.status(e.getStatusCode()).body(e.getBody());
     }
     @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String handle(JwtException e) {
-        log.info("Jwt exception: " + e.getMessage());
-        return e.getMessage();
+        log.warn("Jwt exception: " + e.getMessage());
+        return "Невалидный токен";
     }
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<?> handle(ResponseStatusException e) {
-        log.info("Response status exception: " + e.getMessage());
+        log.warn("Response status exception: " + e.getMessage());
         return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
     }
     // Обработка ошибок валидации параметров запроса и переменных пути запроса
