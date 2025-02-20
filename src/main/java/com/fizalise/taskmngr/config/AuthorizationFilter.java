@@ -1,6 +1,5 @@
 package com.fizalise.taskmngr.config;
 
-import com.fizalise.taskmngr.exception.InvalidTokenException;
 import com.fizalise.taskmngr.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -9,22 +8,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.function.ServerRequest;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.Collection;
 
 @Component
-@RequiredArgsConstructor
 public class AuthorizationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
     private final JwtService jwtService;
+    private final HandlerExceptionResolver resolver;
+    @Autowired
+    public AuthorizationFilter(JwtService jwtService,
+                               @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.jwtService = jwtService;
+        this.resolver = resolver;
+    }
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -47,7 +53,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             );
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
-            throw new InvalidTokenException();
+            resolver.resolveException(request, response, null, e);
         }
     }
 }
