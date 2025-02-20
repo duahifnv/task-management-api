@@ -9,6 +9,7 @@ import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.repository.TaskRepository;
 import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j(topic = "Сервис управления задачами")
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
@@ -33,14 +35,17 @@ public class TaskService {
     public Task createTask(TaskRequest taskRequest, String taskAuthorEmail) {
         User taskAuthor = userRepository.findByEmail(taskAuthorEmail)
                 .orElseThrow(UserNotFoundException::new);
-        return taskRepository.save(
+        Task createdTask = taskRepository.save(
                 taskMapper.toTask(taskRequest, taskAuthor)
         );
+        log.info("Создана задача: {}", createdTask);
+        return createdTask;
     }
     public void removeTask(UUID id) {
         if (!taskRepository.existsByTaskId(id)) {
             throw new ResourceNotFoundException();
         }
         taskRepository.deleteById(id);
+        log.info("Удалена задача с id: {}", id);
     }
 }

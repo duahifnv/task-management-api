@@ -3,6 +3,7 @@ package com.fizalise.taskmngr.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.function.Function;
 
 @Service
+@Slf4j(topic = "Сервис управления токенами")
 public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
@@ -30,11 +32,13 @@ public class JwtService {
         return claims.get("roles", Collection.class);
     }
     private Claims getAllClaims(String token) {
-        return Jwts.parser()
+        var payload = Jwts.parser()
                 .setSigningKey(secret)
                 .build()
                 .parseClaimsJws(token)
                 .getPayload();
+        log.info("Токен {}... прошел валидацию", token.substring(0, 10));
+        return payload;
     }
     public String generateToken(UserDetails userDetails) {
         // Параметры токена
@@ -45,12 +49,14 @@ public class JwtService {
         Date issuedDate = new Date();
         Date expiredDate = new Date(issuedDate.getTime() + tokenLifetime.toMillis());
         // Собираем токен
-        return Jwts.builder()
+        String generatedToken = Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(issuedDate)
                 .expiration(expiredDate)
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
+        log.info("Токен для {} сгенерирован", userDetails);
+        return generatedToken;
     }
 }

@@ -8,6 +8,7 @@ import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.CustomBadCredentialsException;
 import com.fizalise.taskmngr.exception.UserNotFoundException;
 import com.fizalise.taskmngr.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j(topic = "Сервис аутентификации")
 public record AuthService(JwtService jwtService,
                           UserService userService,
                           UserMapper userMapper,
@@ -23,6 +25,7 @@ public record AuthService(JwtService jwtService,
         User user = userService.create(
                 userMapper.toUser(registrationRequest, Role.ROLE_USER)
         );
+        log.info("Зарегистрирован новый пользователь: {}", user);
         return new JwtResponse(
                 jwtService.generateToken(user)
         );
@@ -35,6 +38,8 @@ public record AuthService(JwtService jwtService,
                             authenticationRequest.password()
                     )
             );
+            log.info("Пользователь с email: {} успешно аутентифицировал себя",
+                    authenticationRequest.email());
             return new JwtResponse(
                     jwtService.generateToken(
                             userService().getUserByEmail(authenticationRequest.email())
