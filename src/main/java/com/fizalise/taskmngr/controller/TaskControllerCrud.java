@@ -4,6 +4,7 @@ import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.dto.task.TaskResponse;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,13 +35,13 @@ public class TaskControllerCrud {
     }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponse addTask(@RequestBody TaskRequest taskRequest, Principal principal) {
+    public TaskResponse addTask(@Valid @RequestBody TaskRequest taskRequest, Principal principal) {
         return taskMapper.toResponse(
                 taskService.createTask(taskRequest, principal.getName())
         );
     }
     @PutMapping("/{id}")
-    public TaskResponse updateTask(@PathVariable UUID id, @RequestBody TaskRequest taskRequest) {
+    public TaskResponse updateTask(@PathVariable UUID id, @Valid @RequestBody TaskRequest taskRequest) {
         return taskMapper.toResponse(
                 taskService.updateTask(id, taskRequest)
         );
