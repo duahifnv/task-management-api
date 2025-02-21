@@ -1,14 +1,12 @@
 package com.fizalise.taskmngr.controller;
 
 import com.fizalise.taskmngr.dto.task.TaskResponse;
+import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -31,6 +29,13 @@ public class TaskController {
     public TaskResponse getTask(@PathVariable UUID id, Principal principal) {
         return taskMapper.toResponse(
                 taskService.findTask(id, principal.getName())
+        );
+    }
+    @PutMapping("/{id}")
+    public TaskResponse setTaskStatus(@PathVariable UUID id, @RequestParam Status status,
+                                      Principal principal) {
+        return taskMapper.toResponse(
+                taskService.updateTaskStatus(id, status, principal.getName())
         );
     }
 }

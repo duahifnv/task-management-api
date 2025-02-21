@@ -1,6 +1,7 @@
 package com.fizalise.taskmngr.service;
 
 import com.fizalise.taskmngr.dto.task.TaskRequest;
+import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
@@ -59,6 +60,13 @@ public class TaskService {
                 taskMapper.toTask(task, taskRequest)
         );
         log.info("Изменена задача: {}", task);
+        return task;
+    }
+    public Task updateTaskStatus(UUID id, Status status, String executorEmail) {
+        Task task = findTask(id, executorEmail);
+        task.setStatus(status);
+        taskRepository.save(task);
+        log.info("Изменен статус задачи {}: {}", id, status);
         return task;
     }
     public void removeTask(UUID id) {
