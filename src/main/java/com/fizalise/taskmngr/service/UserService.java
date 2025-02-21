@@ -17,7 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
     public UserDetailsService getUserDetailsService() {
         return this::getUserByEmail;

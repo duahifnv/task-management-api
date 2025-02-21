@@ -7,4 +7,7 @@ public class UserNotFoundException extends ResponseStatusException {
     public UserNotFoundException() {
         super(HttpStatus.NOT_FOUND, "Пользователь не найден");
     }
+    public UserNotFoundException(String username) {
+        super(HttpStatus.NOT_FOUND, "Пользователь %s не найден".formatted(username));
+    }
 }

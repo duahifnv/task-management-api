@@ -41,7 +41,7 @@ public abstract class TaskMapper {
     public List<User> getExecutorList(List<String> emailList) {
         return emailList.stream()
                 .map(email -> userRepository.findByEmail(email)
-                        .orElseThrow(UserNotFoundException::new))
+                        .orElseThrow(() -> new UserNotFoundException(email)))
                 .toList();
     }
 }

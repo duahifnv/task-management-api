@@ -71,6 +71,6 @@ public class TaskService {
     }
     private User findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 }
