@@ -2,13 +2,11 @@ package com.fizalise.taskmngr.controller;
 
 import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.dto.task.TaskResponse;
-import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
