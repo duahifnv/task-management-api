@@ -1,7 +1,7 @@
 package com.fizalise.taskmngr.mapper;
 
-import com.fizalise.taskmngr.dto.TaskRequest;
-import com.fizalise.taskmngr.dto.TaskResponse;
+import com.fizalise.taskmngr.dto.task.TaskRequest;
+import com.fizalise.taskmngr.dto.task.TaskResponse;
 import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
@@ -28,6 +28,11 @@ public abstract class TaskMapper {
     @Mapping(target = "creationDate", expression = "java(Date.valueOf(LocalDate.now()))")
     @Mapping(source = "taskRequest.executorEmailList", target = "executorList", qualifiedByName = "getExecutorList")
     public abstract Task toTask(TaskRequest taskRequest, User author);
+    @Mapping(source = "taskRequest.label", target = "label")
+    @Mapping(source = "taskRequest.description", target = "description")
+    @Mapping(source = "taskRequest.priority", target = "priority")
+    @Mapping(source = "taskRequest.executorEmailList", target = "executorList", qualifiedByName = "getExecutorList")
+    public abstract Task toTask(Task task, TaskRequest taskRequest);
     @Named("getUserId")
     public UUID getUserId(User user) {
         return user.getUserId();

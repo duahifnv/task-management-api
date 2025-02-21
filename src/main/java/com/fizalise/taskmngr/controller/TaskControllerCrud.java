@@ -1,12 +1,14 @@
 package com.fizalise.taskmngr.controller;
 
-import com.fizalise.taskmngr.dto.TaskRequest;
-import com.fizalise.taskmngr.dto.TaskResponse;
+import com.fizalise.taskmngr.dto.task.TaskRequest;
+import com.fizalise.taskmngr.dto.task.TaskResponse;
+import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -37,6 +39,12 @@ public class TaskControllerCrud {
     public TaskResponse addTask(@RequestBody TaskRequest taskRequest, Principal principal) {
         return taskMapper.toResponse(
                 taskService.createTask(taskRequest, principal.getName())
+        );
+    }
+    @PutMapping("/{id}")
+    public TaskResponse updateTask(@PathVariable UUID id, @RequestBody TaskRequest taskRequest) {
+        return taskMapper.toResponse(
+                taskService.updateTask(id, taskRequest)
         );
     }
     @DeleteMapping("/{id}")

@@ -1,7 +1,6 @@
 package com.fizalise.taskmngr.service;
 
-import com.fizalise.taskmngr.dto.TaskRequest;
-import com.fizalise.taskmngr.dto.TaskResponse;
+import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
@@ -14,7 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.RecordComponent;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,22 +32,35 @@ public class TaskService {
         );
     }
     public List<Task> findAllTasks(String executorEmail) {
-        User taskExecutor = userRepository.findByEmail(executorEmail)
-                .orElseThrow(UserNotFoundException::new);
+        User taskExecutor = findUser(executorEmail);
         return taskRepository.findAllByExecutor(taskExecutor);
     }
     public Task findTask(UUID id) {
         return taskRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::new);
     }
+    public Task findTask(UUID id, String executorEmail) {
+        Task task = findTask(id);
+        if (!task.getExecutorList().contains(
+                findUser(executorEmail)
+        )) throw new ResourceNotFoundException();
+        return task;
+    }
     public Task createTask(TaskRequest taskRequest, String taskAuthorEmail) {
-        User taskAuthor = userRepository.findByEmail(taskAuthorEmail)
-                .orElseThrow(UserNotFoundException::new);
         Task createdTask = taskRepository.save(
-                taskMapper.toTask(taskRequest, taskAuthor)
+                taskMapper.toTask(taskRequest, findUser(taskAuthorEmail))
         );
         log.info("Создана задача: {}", createdTask);
         return createdTask;
+    }
+    public Task updateTask(UUID id, TaskRequest taskRequest) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(ResourceNotFoundException::new);
+        task = taskRepository.save(
+                taskMapper.toTask(task, taskRequest)
+        );
+        log.info("Изменена задача: {}", task);
+        return task;
     }
     public void removeTask(UUID id) {
         if (!taskRepository.existsByTaskId(id)) {
@@ -53,5 +68,9 @@ public class TaskService {
         }
         taskRepository.deleteById(id);
         log.info("Удалена задача с id: {}", id);
+    }
+    private User findUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(UserNotFoundException::new);
     }
 }
