@@ -1,4 +1,4 @@
-package com.fizalise.taskmngr.dto;
+package com.fizalise.taskmngr.dto.validation;
 
 import java.util.List;
 

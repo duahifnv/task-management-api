@@ -1,4 +1,4 @@
-package com.fizalise.taskmngr.dto;
+package com.fizalise.taskmngr.dto.validation;
 
 public record Violation(String fieldName, String message) {
 }
