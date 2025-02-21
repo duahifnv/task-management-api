@@ -34,15 +34,14 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        String jwt = authHeader.substring(BEARER_PREFIX.length());
+                                    @NonNull FilterChain filterChain) {
         try {
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            String jwt = authHeader.substring(BEARER_PREFIX.length());
             var username = jwtService.extractUsername(jwt);
             var roles = jwtService.extractRoles(jwt);
             SecurityContextHolder.getContext().setAuthentication(
@@ -52,7 +51,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     )
             );
             filterChain.doFilter(request, response);
-        } catch (JwtException e) {
+        } catch (JwtException | ServletException | IOException e) {
             resolver.resolveException(request, response, null, e);
         }
     }
