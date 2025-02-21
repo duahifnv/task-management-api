@@ -24,12 +24,14 @@ public abstract class TaskMapper {
     public abstract TaskResponse toResponse(Task task);
     public abstract List<TaskResponse> toResponses(List<Task> tasks);
     @Mapping(target = "taskId", expression = "java(UUID.randomUUID())")
-    @Mapping(target = "status", expression = "java(Status.PENDING)")
+    @Mapping(target = "description", defaultValue = "Без описания")
+    @Mapping(target = "status", defaultExpression = "java(Status.PENDING)")
     @Mapping(target = "creationDate", expression = "java(Date.valueOf(LocalDate.now()))")
     @Mapping(source = "taskRequest.executorEmailList", target = "executorList", qualifiedByName = "getExecutorList")
     public abstract Task toTask(TaskRequest taskRequest, User author);
     @Mapping(source = "taskRequest.label", target = "label")
-    @Mapping(source = "taskRequest.description", target = "description")
+    @Mapping(source = "taskRequest.description", target = "description", defaultValue = "Без описания")
+    @Mapping(source = "taskRequest.status", target = "status", defaultExpression = "java(Status.PENDING)")
     @Mapping(source = "taskRequest.priority", target = "priority")
     @Mapping(source = "taskRequest.executorEmailList", target = "executorList", qualifiedByName = "getExecutorList")
     public abstract Task toTask(Task task, TaskRequest taskRequest);
@@ -39,6 +41,7 @@ public abstract class TaskMapper {
     }
     @Named("getExecutorList")
     public List<User> getExecutorList(List<String> emailList) {
+        if (emailList == null) return null;
         return emailList.stream()
                 .map(email -> userRepository.findByEmail(email)
                         .orElseThrow(() -> new UserNotFoundException(email)))
