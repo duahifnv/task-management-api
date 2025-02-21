@@ -41,9 +41,11 @@ public class TaskService {
     }
     public Task findTask(UUID id, String executorEmail) {
         Task task = findTask(id);
-        if (!task.getExecutorList().contains(
-                findUser(executorEmail)
-        )) throw new ResourceNotFoundException();
+        if (!task.getExecutorList()
+                .contains(findUser(executorEmail))) {
+            log.info("Попытка доступа к чужой задаче от пользователя {}", executorEmail);
+            throw new ResourceNotFoundException();
+        }
         return task;
     }
     public Task createTask(TaskRequest taskRequest, String taskAuthorEmail) {
