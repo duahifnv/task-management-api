@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
+    boolean existsByCommentIdAndUser(UUID commentId, User user);
     List<Comment> findAllByUser(User user, Sort sort);
     List<Comment> findAllByTask(Task task, Sort sort);
 }

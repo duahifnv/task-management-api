@@ -45,4 +45,8 @@ public class CommentController {
                 commentService.addCommentFromUser(commentRequest, principal.getName())
         );
     }
+    @DeleteMapping("/{id}")
+    public void deleteComment(@PathVariable UUID id, Principal principal) {
+        commentService.removeComment(id, principal.getName());
+    }
 }

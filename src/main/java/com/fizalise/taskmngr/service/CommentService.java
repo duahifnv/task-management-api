@@ -104,4 +104,13 @@ public class CommentService {
         commentRepository.deleteById(id);
         log.info("Удален комментарий с id: {}", id);
     }
+    @Transactional
+    public void removeComment(UUID id, String authorEmail) {
+        if (!commentRepository
+                .existsByCommentIdAndUser(id, userService.getUserByEmail(authorEmail))) {
+            throw new ResourceNotFoundException();
+        }
+        commentRepository.deleteById(id);
+        log.info("Удален комментарий с id: {}", id);
+    }
 }
