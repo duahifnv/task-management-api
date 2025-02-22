@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +47,7 @@ public class TaskService {
         }
         return task;
     }
+    @Transactional
     public Task createTask(TaskRequest taskRequest, String taskAuthorEmail) {
         Task createdTask = taskRepository.save(
                 taskMapper.toTask(taskRequest, findUser(taskAuthorEmail))
@@ -53,6 +55,7 @@ public class TaskService {
         log.info("Создана задача: {}", createdTask);
         return createdTask;
     }
+    @Transactional
     public Task updateTask(UUID id, TaskRequest taskRequest) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::new);
@@ -62,6 +65,7 @@ public class TaskService {
         log.info("Изменена задача: {}", task);
         return task;
     }
+    @Transactional
     public Task updateTaskStatus(UUID id, Status status, String executorEmail) {
         Task task = findTask(id, executorEmail);
         task.setStatus(status);
@@ -69,6 +73,7 @@ public class TaskService {
         log.info("Изменен статус задачи {}: {}", id, status);
         return task;
     }
+    @Transactional
     public void removeTask(UUID id) {
         if (!taskRepository.existsByTaskId(id)) {
             throw new ResourceNotFoundException();

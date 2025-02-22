@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class CommentService {
         return commentRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::new);
     }
+    @Transactional
     public Comment addComment(CommentRequest commentRequest, String authorEmail) {
         Comment comment = commentMapper.toComment(
                 commentRequest,
@@ -43,6 +45,7 @@ public class CommentService {
                 commentRequest.taskId(), authorEmail, comment);
         return comment;
     }
+    @Transactional
     public Comment updateComment(UUID id, CommentRequest commentRequest) {
         Comment updatedComment = commentMapper.toComment(
                 findComment(id),
@@ -53,6 +56,7 @@ public class CommentService {
         log.info("Изменен комментарий: {}", updatedComment);
         return updatedComment;
     }
+    @Transactional
     public void removeComment(UUID id) {
         if (!commentRepository.existsById(id)) {
             throw new ResourceNotFoundException();
