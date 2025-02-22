@@ -14,13 +14,17 @@ create table public.tasks(
     description text,
     status varchar(20) not null,
     priority varchar(20) not null,
-    author_id uuid not null references users(user_id) on delete cascade
+    author_id uuid not null references users(user_id) on delete cascade,
+    creation_date date not null default current_date
 );
 
 create table public.comments(
     comment_id uuid primary key,
+    label varchar(100),
+    message text not null,
     task_id uuid not null references tasks(task_id) on delete cascade,
-    user_id uuid not null references users(user_id) on delete cascade
+    user_id uuid not null references users(user_id) on delete cascade,
+    creation_time timestamp not null default current_timestamp
 );
 
 create table public.tasks_executors(
