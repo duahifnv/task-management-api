@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -90,5 +92,10 @@ public class GlobalControllerExceptionHandler {
     public MethodNotSupportedResponse handle(HttpRequestMethodNotSupportedException e) {
         log.warn("HttpRequestMethodNotSupportedException: " + e.getMessage());
         return new MethodNotSupportedResponse(e.getMessage(), e.getSupportedMethods());
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public void handle(AccessDeniedException e) {
+        log.warn("AccessDeniedException: " + e.getMessage());
     }
 }
