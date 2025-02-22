@@ -39,7 +39,7 @@ public class CommentControllerCrud {
     @ResponseStatus(HttpStatus.CREATED)
     public CommentResponse addComment(@Valid @RequestBody CommentRequest commentRequest, Principal principal) {
         return commentMapper.toResponse(
-                commentService.addComment(commentRequest, principal.getName())
+                commentService.addCommentFromAdmin(commentRequest, principal.getName())
         );
     }
     @PutMapping("/{id}")

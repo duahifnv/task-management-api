@@ -26,23 +26,63 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final TaskService taskService;
     private final UserService userService;
+    private static final Sort COMMENT_SORTING_STRATEGY = Sort.by(Sort.Direction.DESC, "creationTime");
     public List<Comment> findAllComments() {
-        return commentRepository.findAll(Sort.by(Sort.Direction.DESC, "creationTime"));
+        return commentRepository.findAll(COMMENT_SORTING_STRATEGY);
+    }
+    public List<Comment> findAllComments(String authorEmail) {
+        return commentRepository.findAllByUser(
+                userService.getUserByEmail(authorEmail),
+                COMMENT_SORTING_STRATEGY
+        );
+    }
+    public List<Comment> findAllCommentsByTask(UUID taskId, String authorEmail) {
+        Task task = taskService.findTask(taskId);
+        if (!task.getExecutorList().contains(
+                userService.getUserByEmail(authorEmail)
+        )) {
+            log.info("Попытка доступа к комментариям чужой задачи от пользователя {}", authorEmail);
+            throw new ResourceNotFoundException();
+        }
+        return commentRepository.findAllByTask(task, COMMENT_SORTING_STRATEGY);
     }
     public Comment findComment(UUID id) {
         return commentRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::new);
     }
+    public Comment findComment(UUID id, String authorEmail) {
+        Comment comment = findComment(id);
+        if (!comment.getUser().getEmail()
+                .equals(authorEmail)) {
+            log.info("Попытка доступа к чужому комментарию от пользователя {}", authorEmail);
+            throw new ResourceNotFoundException();
+        }
+        return comment;
+    }
     @Transactional
-    public Comment addComment(CommentRequest commentRequest, String authorEmail) {
-        Comment comment = commentMapper.toComment(
-                commentRequest,
+    public Comment addCommentFromAdmin(CommentRequest commentRequest, String authorEmail) {
+        Comment comment = addComment(commentRequest,
                 taskService.findTask(commentRequest.taskId()),
-                userService.getUserByEmail(authorEmail)
-        );
-        commentRepository.save(comment);
+                authorEmail);
         log.info("К задаче {} был оставлен новый комментарий от администратора {}: {}",
                 commentRequest.taskId(), authorEmail, comment);
+        return comment;
+    }
+    @Transactional
+    public Comment addCommentFromUser(CommentRequest commentRequest, String authorEmail) {
+        Comment comment = addComment(commentRequest,
+                taskService.findTask(commentRequest.taskId(), authorEmail),
+                authorEmail);
+        log.info("К задаче {} был оставлен новый комментарий от пользователя {}: {}",
+                commentRequest.taskId(), authorEmail, comment);
+        return comment;
+    }
+    @Transactional
+    public Comment addComment(CommentRequest commentRequest, Task task, String authorEmail) {
+        Comment comment = commentMapper.toComment(
+                commentRequest, task, userService.getUserByEmail(authorEmail)
+        );
+        commentRepository.save(comment);
         return comment;
     }
     @Transactional
