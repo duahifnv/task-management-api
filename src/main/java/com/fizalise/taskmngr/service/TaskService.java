@@ -29,7 +29,7 @@ public class TaskService {
     private final AuthService authService;
     public Page<Task> findAllTasks(Integer page, UUID authorId, UUID executorId,
                                    Authentication authentication) {
-        var pageRequest = PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort());
+        var pageRequest = getPageRequest(page);
         if (!authService.hasAdminRole(authentication)) {
             return taskRepository.findAllByExecutor(
                     findUser(authentication.getName()), pageRequest
@@ -88,5 +88,8 @@ public class TaskService {
     }
     private User findUser(String email) {
         return userService.getUserByEmail(email);
+    }
+    private PageRequest getPageRequest(Integer page) {
+        return PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort());
     }
 }
