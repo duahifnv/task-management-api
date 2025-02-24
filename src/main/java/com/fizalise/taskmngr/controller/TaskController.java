@@ -44,6 +44,7 @@ public class TaskController {
         );
     }
     @GetMapping("/{id}/executors")
+    @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getTaskExecutors(@PathVariable UUID id, Authentication authentication) {
         return userMapper.toResponses(
                 taskService.findTaskExecutors(id, authentication)
