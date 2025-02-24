@@ -27,8 +27,6 @@ import java.util.UUID;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
-    // todo: Заменить на UserService
-    private final UserRepository userRepository;
     private final UserService userService;
     private final AuthService authService;
     public Page<Task> findAllTasks(Integer page, Authentication authentication) {
@@ -92,7 +90,6 @@ public class TaskService {
         log.info("Удалена задача с id: {}", id);
     }
     private User findUser(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+        return userService.getUserByEmail(email);
     }
 }
