@@ -8,6 +8,7 @@ import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.exception.UserNotFoundException;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.repository.TaskRepository;
+import com.fizalise.taskmngr.repository.TaskSort;
 import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class TaskService {
             );
         }
         return taskRepository.findAll(
-                Sort.by(Sort.Direction.DESC, "creationDate")
+                TaskSort.DATE_DESC.getSort()
         );
     }
     public Task findTask(UUID id, Authentication authentication) {
