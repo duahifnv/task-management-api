@@ -1,11 +1,14 @@
 package com.fizalise.taskmngr.controller;
 
+import com.fizalise.taskmngr.dto.comment.CommentResponse;
 import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.dto.task.TaskResponse;
 import com.fizalise.taskmngr.dto.user.UserResponse;
 import com.fizalise.taskmngr.entity.Status;
+import com.fizalise.taskmngr.mapper.CommentMapper;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.mapper.UserMapper;
+import com.fizalise.taskmngr.service.CommentService;
 import com.fizalise.taskmngr.service.TaskService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -26,6 +29,8 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
     private final UserMapper userMapper;
+    private final CommentService commentService;
+    private final CommentMapper commentMapper;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<TaskResponse> getAllTasks(@RequestParam(defaultValue = "0") @Min(0) Integer page,
@@ -48,6 +53,12 @@ public class TaskController {
     public List<UserResponse> getTaskExecutors(@PathVariable UUID id, Authentication authentication) {
         return userMapper.toResponses(
                 taskService.findTaskExecutors(id, authentication)
+        );
+    }
+    @GetMapping("/{id}/comments")
+    public List<CommentResponse> getTaskComments(@PathVariable UUID id, Authentication authentication) {
+        return commentMapper.toResponses(
+                commentService.findAllCommentsByTask(id, authentication)
         );
     }
     @PreAuthorize("hasRole('ADMIN')")
