@@ -13,7 +13,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j(topic = "Сервис аутентификации")
@@ -50,5 +54,13 @@ public record AuthService(JwtService jwtService,
         } catch (InternalAuthenticationServiceException e) {
             throw new UserNotFoundException();
         }
+    }
+    public boolean hasAdminRole(Authentication authentication) {
+        return getAuthorities(authentication).contains(Role.ROLE_ADMIN.name());
+    }
+    public List<String> getAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
     }
 }

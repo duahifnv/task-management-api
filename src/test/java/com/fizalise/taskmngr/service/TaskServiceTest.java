@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
@@ -24,6 +27,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Slf4j
@@ -40,6 +45,7 @@ class TaskServiceTest {
     @Autowired
     TaskService taskService;
     User taskAuthor;
+    Authentication authentication;
     @BeforeAll
     static void startContainer() {
         postgreSQLContainer.start();
@@ -63,22 +69,28 @@ class TaskServiceTest {
             throw new RuntimeException("Не найдено ни одного пользователя");
         }
     }
+    @BeforeEach
+    void setAuthorities() {
+        authentication = mock(Authentication.class);
+        when(authentication.getCredentials())
+                .thenReturn(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    }
     @Test
     void findAllTasks() {
-        var allTasks = taskService.findAllTasks();
+        var allTasks = taskService.findAllTasks(authentication);
         assertEquals(allTasks.getFirst().getTaskId(), taskId);
         assertEquals(allTasks.size(), 1);
     }
     @Test
     void findTask() {
-        var task = taskService.findTask(taskId);
+        var task = taskService.findTask(taskId, authentication);
         assertNotNull(task);
     }
     @Test
     void findTask_throwsResourceNotFoundException() {
         taskRepository.deleteAll();
         assertThrows(ResourceNotFoundException.class,
-                () -> taskService.findTask(taskId)
+                () -> taskService.findTask(taskId, authentication)
         );
     }
 }

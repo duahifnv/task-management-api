@@ -1,14 +1,17 @@
 package com.fizalise.taskmngr.controller;
 
+import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.dto.task.TaskResponse;
 import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,22 +23,47 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
     @GetMapping
-    public List<TaskResponse> getAllTasks(Principal principal) {
+    @ResponseStatus(HttpStatus.OK)
+    public List<TaskResponse> getAllTasks(Authentication authentication) {
         return taskMapper.toResponses(
-                taskService.findAllTasks(principal.getName())
+                taskService.findAllTasks(authentication)
         );
     }
     @GetMapping("/{id}")
-    public TaskResponse getTask(@PathVariable UUID id, Principal principal) {
+    @ResponseStatus(HttpStatus.OK)
+    public TaskResponse getTask(@PathVariable UUID id, Authentication authentication) {
         return taskMapper.toResponse(
-                taskService.findTask(id, principal.getName())
+                taskService.findTask(id, authentication)
         );
     }
-    @PutMapping("/{id}")
-    public TaskResponse setTaskStatus(@PathVariable UUID id, @RequestParam Status status,
-                                      Principal principal) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public TaskResponse addTask(@Valid @RequestBody TaskRequest taskRequest,
+                                Authentication authentication) {
         return taskMapper.toResponse(
-                taskService.updateTaskStatus(id, status, principal.getName())
+                taskService.createTask(taskRequest, authentication)
         );
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public TaskResponse updateTask(@PathVariable UUID id,
+                                   @Valid @RequestBody TaskRequest taskRequest) {
+        return taskMapper.toResponse(
+                taskService.updateTask(id, taskRequest)
+        );
+    }
+    @PutMapping("/{id}/")
+    public TaskResponse setTaskStatus(@PathVariable UUID id, @RequestParam Status status,
+                                      Authentication authentication) {
+        return taskMapper.toResponse(
+                taskService.updateTaskStatus(id, status, authentication)
+        );
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteTask(@PathVariable UUID id) {
+        taskService.removeTask(id);
     }
 }

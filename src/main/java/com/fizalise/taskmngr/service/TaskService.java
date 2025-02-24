@@ -12,6 +12,7 @@ import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,33 +25,35 @@ import java.util.UUID;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+    // todo: Заменить на UserService
     private final UserRepository userRepository;
-    public List<Task> findAllTasks() {
+    private final UserService userService;
+    private final AuthService authService;
+    public List<Task> findAllTasks(Authentication authentication) {
+        if (!authService.hasAdminRole(authentication)) {
+            return taskRepository.findAllByExecutor(
+                    findUser(authentication.getName())
+            );
+        }
         return taskRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "creationDate")
         );
     }
-    public List<Task> findAllTasks(String executorEmail) {
-        User taskExecutor = findUser(executorEmail);
-        return taskRepository.findAllByExecutor(taskExecutor);
-    }
-    public Task findTask(UUID id) {
-        return taskRepository.findById(id)
+    public Task findTask(UUID id, Authentication authentication) {
+        Task task = taskRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::new);
-    }
-    public Task findTask(UUID id, String executorEmail) {
-        Task task = findTask(id);
-        if (!task.getExecutorList()
-                .contains(findUser(executorEmail))) {
-            log.info("Попытка доступа к чужой задаче от пользователя {}", executorEmail);
+        if (!authService.hasAdminRole(authentication) &&
+                !task.getExecutorList().contains(findUser(authentication.getName()))
+        ) {
+            log.info("Попытка доступа к чужой задаче от пользователя {}", authentication.getName());
             throw new ResourceNotFoundException();
         }
         return task;
     }
     @Transactional
-    public Task createTask(TaskRequest taskRequest, String taskAuthorEmail) {
+    public Task createTask(TaskRequest taskRequest, Authentication authentication) {
         Task createdTask = taskRepository.save(
-                taskMapper.toTask(taskRequest, findUser(taskAuthorEmail))
+                taskMapper.toTask(taskRequest, findUser(authentication.getName()))
         );
         log.info("Создана задача: {}", createdTask);
         return createdTask;
@@ -66,8 +69,8 @@ public class TaskService {
         return task;
     }
     @Transactional
-    public Task updateTaskStatus(UUID id, Status status, String executorEmail) {
-        Task task = findTask(id, executorEmail);
+    public Task updateTaskStatus(UUID id, Status status, Authentication authentication) {
+        Task task = findTask(id, authentication);
         task.setStatus(status);
         taskRepository.save(task);
         log.info("Изменен статус задачи {}: {}", id, status);

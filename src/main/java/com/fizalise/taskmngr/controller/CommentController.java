@@ -6,10 +6,11 @@ import com.fizalise.taskmngr.mapper.CommentMapper;
 import com.fizalise.taskmngr.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,32 +22,46 @@ public class CommentController {
     private final CommentService commentService;
     private final CommentMapper commentMapper;
     @GetMapping
-    public List<CommentResponse> getAllComments(Principal principal) {
+    @ResponseStatus(HttpStatus.OK)
+    public List<CommentResponse> getAllComments(Authentication authentication) {
         return commentMapper.toResponses(
-                commentService.findAllComments(principal.getName())
+                commentService.findAllComments(authentication)
         );
     }
     @GetMapping("/{id}")
-    public CommentResponse getComment(@PathVariable UUID id, Principal principal) {
+    @ResponseStatus(HttpStatus.OK)
+    public CommentResponse getComment(@PathVariable UUID id, Authentication authentication) {
         return commentMapper.toResponse(
-                commentService.findComment(id, principal.getName())
+                commentService.findComment(id, authentication)
         );
     }
     @GetMapping("/tasks/{taskId}")
-    public List<CommentResponse> getTaskComments(@PathVariable UUID taskId, Principal principal) {
+    public List<CommentResponse> getTaskComments(@PathVariable UUID taskId,
+                                                 Authentication authentication) {
         return commentMapper.toResponses(
-                commentService.findAllCommentsByTask(taskId, principal.getName())
+                commentService.findAllCommentsByTask(taskId, authentication)
         );
     }
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CommentResponse addComment(@Valid @RequestBody CommentRequest commentRequest,
-                                      Principal principal) {
+                                      Authentication authentication) {
         return commentMapper.toResponse(
-                commentService.addCommentFromUser(commentRequest, principal.getName())
+                commentService.addComment(commentRequest, authentication)
+        );
+    }
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CommentResponse updateComment(@PathVariable UUID id,
+                                         @Valid @RequestBody CommentRequest commentRequest,
+                                         Authentication authentication) {
+        return commentMapper.toResponse(
+                commentService.updateComment(id, commentRequest, authentication)
         );
     }
     @DeleteMapping("/{id}")
-    public void deleteComment(@PathVariable UUID id, Principal principal) {
-        commentService.removeComment(id, principal.getName());
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteComment(@PathVariable UUID id, Authentication authentication) {
+        commentService.removeComment(id, authentication);
     }
 }

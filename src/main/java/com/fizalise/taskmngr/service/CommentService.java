@@ -12,11 +12,16 @@ import com.fizalise.taskmngr.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,91 +31,66 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final TaskService taskService;
     private final UserService userService;
+    private final AuthService authService;
     private static final Sort COMMENT_SORTING_STRATEGY = Sort.by(Sort.Direction.DESC, "creationTime");
-    public List<Comment> findAllComments() {
+    public List<Comment> findAllComments(Authentication authentication) {
+        if (!authService.hasAdminRole(authentication)) {
+            return commentRepository.findAllByUser(
+                    userService.getUserByEmail(authentication.getName()),
+                    COMMENT_SORTING_STRATEGY
+            );
+        }
         return commentRepository.findAll(COMMENT_SORTING_STRATEGY);
     }
-    public List<Comment> findAllComments(String authorEmail) {
-        return commentRepository.findAllByUser(
-                userService.getUserByEmail(authorEmail),
-                COMMENT_SORTING_STRATEGY
-        );
-    }
-    public List<Comment> findAllCommentsByTask(UUID taskId, String authorEmail) {
-        Task task = taskService.findTask(taskId);
-        if (!task.getExecutorList().contains(
-                userService.getUserByEmail(authorEmail)
-        )) {
-            log.info("Попытка доступа к комментариям чужой задачи от пользователя {}", authorEmail);
-            throw new ResourceNotFoundException();
-        }
+    public List<Comment> findAllCommentsByTask(UUID taskId, Authentication authentication) {
+        Task task = taskService.findTask(taskId, authentication);
         return commentRepository.findAllByTask(task, COMMENT_SORTING_STRATEGY);
     }
-    public Comment findComment(UUID id) {
-        return commentRepository.findById(id)
+    public Comment findComment(UUID id, Authentication authentication) {
+        Comment comment = commentRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::new);
-    }
-    public Comment findComment(UUID id, String authorEmail) {
-        Comment comment = findComment(id);
-        if (!comment.getUser().getEmail()
-                .equals(authorEmail)) {
-            log.info("Попытка доступа к чужому комментарию от пользователя {}", authorEmail);
+        if (!authService.hasAdminRole(authentication) &&
+                !comment.getUser().getEmail().equals(authentication.getName())
+        ) {
+            log.info("Попытка доступа к чужому комментарию от пользователя {}", authentication.getName());
             throw new ResourceNotFoundException();
         }
         return comment;
     }
     @Transactional
-    public Comment addCommentFromAdmin(CommentRequest commentRequest, String authorEmail) {
-        Comment comment = addComment(commentRequest,
-                taskService.findTask(commentRequest.taskId()),
-                authorEmail);
-        log.info("К задаче {} был оставлен новый комментарий от администратора {}: {}",
-                commentRequest.taskId(), authorEmail, comment);
-        return comment;
-    }
-    @Transactional
-    public Comment addCommentFromUser(CommentRequest commentRequest, String authorEmail) {
-        Comment comment = addComment(commentRequest,
-                taskService.findTask(commentRequest.taskId(), authorEmail),
-                authorEmail);
-        log.info("К задаче {} был оставлен новый комментарий от пользователя {}: {}",
-                commentRequest.taskId(), authorEmail, comment);
-        return comment;
-    }
-    @Transactional
-    public Comment addComment(CommentRequest commentRequest, Task task, String authorEmail) {
+    public Comment addComment(CommentRequest commentRequest, Authentication authentication) {
         Comment comment = commentMapper.toComment(
-                commentRequest, task, userService.getUserByEmail(authorEmail)
+                commentRequest,
+                taskService.findTask(commentRequest.taskId(), authentication),
+                userService.getUserByEmail(authentication.getName())
         );
         commentRepository.save(comment);
+        log.info("К задаче {} был оставлен новый комментарий от {}: {}",
+                commentRequest.taskId(), authentication.getName(), comment);
         return comment;
     }
     @Transactional
-    public Comment updateComment(UUID id, CommentRequest commentRequest) {
+    public Comment updateComment(UUID id, CommentRequest commentRequest, Authentication authentication) {
         Comment updatedComment = commentMapper.toComment(
-                findComment(id),
+                findComment(id, authentication),
                 commentRequest,
-                taskService.findTask(commentRequest.taskId())
+                taskService.findTask(commentRequest.taskId(), authentication)
         );
         commentRepository.save(updatedComment);
         log.info("Изменен комментарий: {}", updatedComment);
         return updatedComment;
     }
     @Transactional
-    public void removeComment(UUID id) {
-        if (!commentRepository.existsById(id)) {
+    public void removeComment(UUID id, Authentication authentication) {
+        if (existsByCommentId(id, authentication)) {
             throw new ResourceNotFoundException();
         }
         commentRepository.deleteById(id);
         log.info("Удален комментарий с id: {}", id);
     }
-    @Transactional
-    public void removeComment(UUID id, String authorEmail) {
-        if (!commentRepository
-                .existsByCommentIdAndUser(id, userService.getUserByEmail(authorEmail))) {
-            throw new ResourceNotFoundException();
-        }
-        commentRepository.deleteById(id);
-        log.info("Удален комментарий с id: {}", id);
+    public boolean existsByCommentId(UUID id, Authentication authentication) {
+        return commentRepository.existsByCommentIdAndUser(
+                id, userService.getUserByEmail(authentication.getName())
+        );
     }
 }
