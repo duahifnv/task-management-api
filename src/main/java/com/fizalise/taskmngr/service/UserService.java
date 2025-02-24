@@ -46,4 +46,12 @@ public class UserService {
         }
         return saveUser(user);
     }
+    @Transactional
+    public void deleteUser(UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException(id.toString());
+        }
+        userRepository.deleteById(id);
+        log.info("Удален пользователь с id: {}", id);
+    }
 }

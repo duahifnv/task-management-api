@@ -6,12 +6,10 @@ import com.fizalise.taskmngr.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -24,5 +22,20 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getAllUsers() {
         return userMapper.toResponses(userService.findAll());
+    }
+    @GetMapping("/id/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getUser(@PathVariable UUID id) {
+        return userMapper.toResponse(userService.findById(id));
+    }
+    @GetMapping("/email/{email}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getUser(@PathVariable String email) {
+        return userMapper.toResponse(userService.findByEmail(email));
+    }
+    @DeleteMapping("/id/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser(@PathVariable UUID id) {
+        userService.deleteUser(id);
     }
 }
