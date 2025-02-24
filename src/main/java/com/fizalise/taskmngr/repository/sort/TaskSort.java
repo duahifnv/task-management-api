@@ -1,4 +1,4 @@
-package com.fizalise.taskmngr.repository;
+package com.fizalise.taskmngr.repository.sort;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

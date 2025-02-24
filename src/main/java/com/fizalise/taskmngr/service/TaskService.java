@@ -7,7 +7,7 @@ import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.repository.TaskRepository;
-import com.fizalise.taskmngr.repository.TaskSort;
+import com.fizalise.taskmngr.repository.sort.TaskSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
