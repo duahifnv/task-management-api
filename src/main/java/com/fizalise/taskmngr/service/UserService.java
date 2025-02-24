@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j(topic = "Сервис пользователей")
@@ -20,6 +21,10 @@ public class UserService {
     private final UserRepository userRepository;
     public List<User> findAll() {
         return userRepository.findAll(UserSort.NAME_ASC.getSort());
+    }
+    public User findById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id.toString()));
     }
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
