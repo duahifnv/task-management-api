@@ -87,7 +87,7 @@ public class TaskService {
         log.info("Удалена задача с id: {}", id);
     }
     private User findUser(String email) {
-        return userService.getUserByEmail(email);
+        return userService.findByEmail(email);
     }
     private PageRequest getPageRequest(Integer page) {
         return PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort());

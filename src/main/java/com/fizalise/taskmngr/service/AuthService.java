@@ -26,7 +26,7 @@ public record AuthService(JwtService jwtService,
                           UserMapper userMapper,
                           AuthenticationManager authenticationManager) {
     public JwtResponse registerNewUser(RegistrationRequest registrationRequest) {
-        User user = userService.create(
+        User user = userService.createUser(
                 userMapper.toUser(registrationRequest, Role.ROLE_USER)
         );
         log.info("Зарегистрирован новый пользователь: {}", user);
@@ -46,7 +46,7 @@ public record AuthService(JwtService jwtService,
                     authenticationRequest.email());
             return new JwtResponse(
                     jwtService.generateToken(
-                            userService().getUserByEmail(authenticationRequest.email())
+                            userService().findByEmail(authenticationRequest.email())
                     )
             );
         } catch (BadCredentialsException e) {

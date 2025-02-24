@@ -29,7 +29,7 @@ public class CommentService {
     public List<Comment> findAllComments(Authentication authentication) {
         if (!authService.hasAdminRole(authentication)) {
             return commentRepository.findAllByUser(
-                    userService.getUserByEmail(authentication.getName()),
+                    userService.findByEmail(authentication.getName()),
                     COMMENT_SORTING_STRATEGY
             );
         }
@@ -55,7 +55,7 @@ public class CommentService {
         Comment comment = commentMapper.toComment(
                 commentRequest,
                 taskService.findTask(commentRequest.taskId(), authentication),
-                userService.getUserByEmail(authentication.getName())
+                userService.findByEmail(authentication.getName())
         );
         commentRepository.save(comment);
         log.info("К задаче {} был оставлен новый комментарий от {}: {}",
@@ -83,7 +83,7 @@ public class CommentService {
     }
     public boolean existsByCommentId(UUID id, Authentication authentication) {
         return commentRepository.existsByCommentIdAndUser(
-                id, userService.getUserByEmail(authentication.getName())
+                id, userService.findByEmail(authentication.getName())
         );
     }
 }

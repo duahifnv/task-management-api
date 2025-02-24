@@ -21,24 +21,24 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll(UserSort.NAME_ASC.getSort());
     }
-    public User getUserByEmail(String email) {
+    public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
     }
     public UserDetailsService getUserDetailsService() {
-        return this::getUserByEmail;
+        return this::findByEmail;
     }
     @Transactional
-    public User save(User user) {
+    public User saveUser(User user) {
         User savedUser = userRepository.save(user);
         log.info("Пользователь {} сохранен в базу данных", savedUser);
         return savedUser;
     }
     @Transactional
-    public User create(User user) {
+    public User createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new UserAlreadyExistsException("Пользователь с такой почтой уже существует");
         }
-        return save(user);
+        return saveUser(user);
     }
 }
