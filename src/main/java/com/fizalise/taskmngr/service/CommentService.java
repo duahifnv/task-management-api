@@ -6,6 +6,7 @@ import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.mapper.CommentMapper;
 import com.fizalise.taskmngr.repository.CommentRepository;
+import com.fizalise.taskmngr.repository.sort.CommentSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -25,19 +26,18 @@ public class CommentService {
     private final TaskService taskService;
     private final UserService userService;
     private final AuthService authService;
-    private static final Sort COMMENT_SORTING_STRATEGY = Sort.by(Sort.Direction.DESC, "creationTime");
     public List<Comment> findAllComments(Authentication authentication) {
         if (!authService.hasAdminRole(authentication)) {
             return commentRepository.findAllByUser(
                     userService.findByEmail(authentication.getName()),
-                    COMMENT_SORTING_STRATEGY
+                    CommentSort.CREATED_DESC.getSort()
             );
         }
-        return commentRepository.findAll(COMMENT_SORTING_STRATEGY);
+        return commentRepository.findAll(CommentSort.CREATED_DESC.getSort());
     }
     public List<Comment> findAllCommentsByTask(UUID taskId, Authentication authentication) {
         Task task = taskService.findTask(taskId, authentication);
-        return commentRepository.findAllByTask(task, COMMENT_SORTING_STRATEGY);
+        return commentRepository.findAllByTask(task, CommentSort.CREATED_DESC.getSort());
     }
     public Comment findComment(UUID id, Authentication authentication) {
         Comment comment = commentRepository.findById(id)
