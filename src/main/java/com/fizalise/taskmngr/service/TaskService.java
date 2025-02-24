@@ -50,6 +50,10 @@ public class TaskService {
         }
         return task;
     }
+    public List<User> findTaskExecutors(UUID id, Authentication authentication) {
+        Task task = findTask(id, authentication);
+        return task.getExecutorList().stream().toList();
+    }
     @Transactional
     public Task createTask(TaskRequest taskRequest, Authentication authentication) {
         Task createdTask = taskRepository.save(

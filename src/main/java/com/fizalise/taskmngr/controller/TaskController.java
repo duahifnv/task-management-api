@@ -2,8 +2,10 @@ package com.fizalise.taskmngr.controller;
 
 import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.dto.task.TaskResponse;
+import com.fizalise.taskmngr.dto.user.UserResponse;
 import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.mapper.TaskMapper;
+import com.fizalise.taskmngr.mapper.UserMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
+    private final UserMapper userMapper;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<TaskResponse> getAllTasks(Authentication authentication) {
@@ -34,6 +37,12 @@ public class TaskController {
     public TaskResponse getTask(@PathVariable UUID id, Authentication authentication) {
         return taskMapper.toResponse(
                 taskService.findTask(id, authentication)
+        );
+    }
+    @GetMapping("/{id}/executors")
+    public List<UserResponse> getTaskExecutors(@PathVariable UUID id, Authentication authentication) {
+        return userMapper.toResponses(
+                taskService.findTaskExecutors(id, authentication)
         );
     }
     @PreAuthorize("hasRole('ADMIN')")
