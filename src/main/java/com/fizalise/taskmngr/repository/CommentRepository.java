@@ -5,7 +5,6 @@ import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -1,10 +1,7 @@
 package com.fizalise.taskmngr.service;
 
-import com.fizalise.taskmngr.dto.comment.CommentResponse;
 import com.fizalise.taskmngr.dto.comment.CommentRequest;
-import com.fizalise.taskmngr.dto.task.TaskRequest;
 import com.fizalise.taskmngr.entity.Comment;
-import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.mapper.CommentMapper;
@@ -13,15 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
