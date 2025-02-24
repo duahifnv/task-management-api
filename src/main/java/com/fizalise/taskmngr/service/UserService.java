@@ -4,17 +4,23 @@ import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.UserAlreadyExistsException;
 import com.fizalise.taskmngr.exception.UserNotFoundException;
 import com.fizalise.taskmngr.repository.UserRepository;
+import com.fizalise.taskmngr.repository.sort.UserSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j(topic = "Сервис пользователей")
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    public List<User> findAll() {
+        return userRepository.findAll(UserSort.NAME_ASC.getSort());
+    }
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
