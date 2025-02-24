@@ -17,4 +17,10 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     boolean existsByTaskId(UUID taskId);
     @Query("from Task t join t.executorList e where e = :executor")
     Page<Task> findAllByExecutor(@Param("executor") User executor, Pageable pageable);
+    @Query("""
+            from Task t join t.executorList e
+            where (?1 is null or t.author.userId = ?1)
+            and (?2 is null or e.userId = ?2)
+            """)
+    Page<Task> findAllFiltered(UUID authorId, UUID executorId, Pageable pageable);
 }

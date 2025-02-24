@@ -5,11 +5,9 @@ import com.fizalise.taskmngr.entity.Status;
 import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
-import com.fizalise.taskmngr.exception.UserNotFoundException;
 import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.repository.TaskRepository;
 import com.fizalise.taskmngr.repository.TaskSort;
-import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,16 +27,15 @@ public class TaskService {
     private final TaskMapper taskMapper;
     private final UserService userService;
     private final AuthService authService;
-    public Page<Task> findAllTasks(Integer page, Authentication authentication) {
+    public Page<Task> findAllTasks(Integer page, UUID authorId, UUID executorId,
+                                   Authentication authentication) {
+        var pageRequest = PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort());
         if (!authService.hasAdminRole(authentication)) {
             return taskRepository.findAllByExecutor(
-                    findUser(authentication.getName()),
-                    PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort())
+                    findUser(authentication.getName()), pageRequest
             );
         }
-        return taskRepository.findAll(
-                PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort())
-        );
+        return taskRepository.findAllFiltered(authorId, executorId, pageRequest);
     }
     public Task findTask(UUID id, Authentication authentication) {
         Task task = taskRepository.findById(id)

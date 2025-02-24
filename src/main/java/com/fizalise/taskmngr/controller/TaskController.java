@@ -28,10 +28,12 @@ public class TaskController {
     private final UserMapper userMapper;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<TaskResponse> getAllTasks(@RequestParam(defaultValue = "0") @Min(0) Integer page
+    public List<TaskResponse> getAllTasks(@RequestParam(defaultValue = "0") @Min(0) Integer page,
+                                          @RequestParam(required = false) UUID authorId,
+                                          @RequestParam(required = false) UUID executorId,
                                           Authentication authentication) {
         return taskMapper.toResponses(
-                taskService.findAllTasks(page, authentication)
+                taskService.findAllTasks(page, authorId, executorId, authentication)
         );
     }
     @GetMapping("/{id}")
