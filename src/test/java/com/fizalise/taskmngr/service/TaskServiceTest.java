@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -22,6 +23,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -76,9 +78,10 @@ class TaskServiceTest {
     }
     @Test
     void findAllTasks() {
-        var allTasks = taskService.findAllTasks(authentication);
-        assertEquals(allTasks.getFirst().getTaskId(), taskId);
-        assertEquals(allTasks.size(), 1);
+        Page<Task> tasksPage = taskService.findAllTasks(0, authentication);
+        List<Task> tasks = tasksPage.getContent();
+        assertEquals(tasks.getFirst().getTaskId(), taskId);
+        assertEquals(tasks.size(), 1);
     }
     @Test
     void findTask() {

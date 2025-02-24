@@ -12,7 +12,8 @@ import com.fizalise.taskmngr.repository.TaskSort;
 import com.fizalise.taskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,14 +31,15 @@ public class TaskService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final AuthService authService;
-    public List<Task> findAllTasks(Authentication authentication) {
+    public Page<Task> findAllTasks(Integer page, Authentication authentication) {
         if (!authService.hasAdminRole(authentication)) {
             return taskRepository.findAllByExecutor(
-                    findUser(authentication.getName())
+                    findUser(authentication.getName()),
+                    PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort())
             );
         }
         return taskRepository.findAll(
-                TaskSort.DATE_DESC.getSort()
+                PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort())
         );
     }
     public Task findTask(UUID id, Authentication authentication) {

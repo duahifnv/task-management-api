@@ -11,6 +11,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +23,7 @@ public abstract class TaskMapper {
     UserRepository userRepository;
     @Mapping(source = "author", target = "authorId", qualifiedByName = "getUserId")
     public abstract TaskResponse toResponse(Task task);
-    public abstract List<TaskResponse> toResponses(List<Task> tasks);
+    public abstract List<TaskResponse> toResponses(Page<Task> tasks);
     @Mapping(target = "taskId", expression = "java(UUID.randomUUID())")
     @Mapping(target = "description", defaultValue = "Без описания")
     @Mapping(target = "status", defaultExpression = "java(Status.PENDING)")

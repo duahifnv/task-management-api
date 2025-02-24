@@ -8,6 +8,7 @@ import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.mapper.UserMapper;
 import com.fizalise.taskmngr.service.TaskService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,9 +28,10 @@ public class TaskController {
     private final UserMapper userMapper;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<TaskResponse> getAllTasks(Authentication authentication) {
+    public List<TaskResponse> getAllTasks(@RequestParam(defaultValue = "0") @Min(0) Integer page
+                                          Authentication authentication) {
         return taskMapper.toResponses(
-                taskService.findAllTasks(authentication)
+                taskService.findAllTasks(page, authentication)
         );
     }
     @GetMapping("/{id}")
