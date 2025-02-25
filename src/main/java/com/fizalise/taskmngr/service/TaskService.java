@@ -13,10 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -50,7 +52,7 @@ public class TaskService {
     }
     public Page<User> findTaskExecutors(UUID id, Integer page, Authentication authentication) {
         Task task = findTask(id, authentication);
-        return getExecutorsPage(task, page);
+        return getPage(task.getExecutorList().stream().toList(), getPageRequest(page));
     }
     @Transactional
     public Task createTask(TaskRequest taskRequest, Authentication authentication) {
@@ -116,9 +118,11 @@ public class TaskService {
     private PageRequest getPageRequest(Integer page) {
         return PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort());
     }
-    private Page<User> getExecutorsPage(Task task, Integer page) {
-        return new PageImpl<>(
-                task.getExecutorList().stream().toList(), getPageRequest(page), taskRepository.count()
-        );
+    private <T> Page<T> getPage(List<T> items, Pageable pageable) {
+        int fromIndex = (int) pageable.getOffset();
+        int toIndex = Math.min(fromIndex + pageable.getPageSize(), items.size());
+        List<T> pageItems = items.subList(fromIndex, toIndex);
+
+        return new PageImpl<>(pageItems, pageable, items.size());
     }
 }
