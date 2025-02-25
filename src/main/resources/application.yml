@@ -9,6 +9,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  flyway:
+    clean-disabled: false
 server:
   port: 9000
   error:
