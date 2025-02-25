@@ -12,23 +12,24 @@ create table public.tasks(
     task_id uuid primary key,
     label varchar(100) not null,
     description text,
-    status varchar(20) not null,
+    status varchar(20) default 'PENDING',
     priority varchar(20) not null,
     author_id uuid not null references users(user_id) on delete cascade,
-    creation_date date not null default current_date
+    creation_date date default current_date
 );
 
 create table public.comments(
     comment_id uuid primary key,
-    label varchar(100),
+    label varchar(100) default 'Без названия',
     message text not null,
     task_id uuid not null references tasks(task_id) on delete cascade,
     user_id uuid not null references users(user_id) on delete cascade,
-    creation_time timestamp not null default current_timestamp
+    creation_time timestamp default current_timestamp
 );
 
 create table public.tasks_executors(
     task_id uuid not null references tasks(task_id) on delete cascade,
     user_id uuid not null references users(user_id) on delete cascade,
+    status varchar(20) default 'PENDING',
     primary key (task_id, user_id)
 )
