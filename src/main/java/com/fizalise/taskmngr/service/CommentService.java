@@ -6,9 +6,7 @@ import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.mapper.CommentMapper;
 import com.fizalise.taskmngr.repository.CommentRepository;
-import com.fizalise.taskmngr.repository.UserRepository;
 import com.fizalise.taskmngr.repository.sort.CommentSort;
-import com.fizalise.taskmngr.repository.sort.UserSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
