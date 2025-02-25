@@ -27,6 +27,7 @@ public class TaskService {
     private final TaskMapper taskMapper;
     private final UserService userService;
     private final AuthService authService;
+    private final ExecutionService executionService;
     public Page<Task> findAllTasks(Integer page, UUID authorId, UUID executorId,
                                    Authentication authentication) {
         var pageRequest = getPageRequest(page);
@@ -73,10 +74,34 @@ public class TaskService {
     @Transactional
     public Task updateTaskStatus(UUID id, Status status, Authentication authentication) {
         Task task = findTask(id, authentication);
-        task.setStatus(status);
-        taskRepository.save(task);
-        log.info("Изменен статус задачи {}: {}", id, status);
+        if (task.getStatus() != status) {
+            task.setStatus(status);
+            taskRepository.save(task);
+            log.info("Изменен статус задачи {}: {}", id, status);
+        }
         return task;
+    }
+    @Transactional
+    public void startExecution(UUID id, Authentication authentication) {
+        UUID taskId = findTask(id, authentication)
+                .getTaskId();
+        UUID userId = userService.findByEmail(authentication.getName())
+                .getUserId();
+        executionService.updateExecutionStatus(taskId, userId, Status.IN_PROGRESS);
+        log.info("Начато выполнение задачи {} пользователем {}", taskId, userId);
+        updateTaskStatus(taskId, Status.IN_PROGRESS, authentication);
+    }
+    @Transactional
+    public void stopExecution(UUID id, Authentication authentication) {
+        UUID taskId = findTask(id, authentication)
+                .getTaskId();
+        UUID userId = userService.findByEmail(authentication.getName())
+                .getUserId();
+        executionService.updateExecutionStatus(taskId, userId, Status.DONE);
+        log.info("Завершено выполнение задачи {} пользователем {}", taskId, userId);
+        if (executionService.isTaskDone(taskId)) {
+            updateTaskStatus(taskId, Status.DONE, authentication);
+        }
     }
     @Transactional
     public void removeTask(UUID id) {

@@ -31,6 +31,6 @@ create table public.tasks_executors(
     task_id uuid not null references tasks(task_id) on delete cascade,
     user_id uuid not null references users(user_id) on delete cascade,
     status varchar(20) default 'PENDING',
-    execution_start timestamp default current_timestamp,
+    execution_start timestamp,
     primary key (task_id, user_id)
 )

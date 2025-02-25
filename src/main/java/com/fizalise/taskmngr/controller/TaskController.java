@@ -78,6 +78,17 @@ public class TaskController {
                 taskService.updateTask(id, taskRequest)
         );
     }
+    @PutMapping("/{id}/start")
+    @ResponseStatus(HttpStatus.OK)
+    public void startTask(@PathVariable UUID id, Authentication authentication) {
+        taskService.startExecution(id, authentication);
+    }
+    @PutMapping("/{id}/stop")
+    @ResponseStatus(HttpStatus.OK)
+    public void stopTask(@PathVariable UUID id, Authentication authentication) {
+        taskService.stopExecution(id, authentication);
+    }
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/")
     public TaskResponse setTaskStatus(@PathVariable UUID id, @RequestParam Status status,
                                       Authentication authentication) {
