@@ -75,7 +75,7 @@ public class CommentService {
     }
     @Transactional
     public void removeComment(UUID id, Authentication authentication) {
-        if (existsByCommentId(id, authentication)) {
+        if (!existsByCommentId(id, authentication)) {
             throw new ResourceNotFoundException();
         }
         commentRepository.deleteById(id);
