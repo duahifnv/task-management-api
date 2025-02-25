@@ -12,5 +12,22 @@ services:
     ports:
       - "15432:5432"
     restart: unless-stopped
+  task-management-app:
+    container_name: task-management-app
+    image: client:0.0.1
+    build:
+      context: .
+      dockerfile: /docker/spring-boot/Dockerfile
+    environment:
+      SPRING_CONFIG_LOCATION: /config/application.yml
+    volumes:
+      - ./src/main/resources/application.yml:/config/application.yml
+      - ./:/app
+      - maven-repository-data:/root/.m2/repository
+    depends_on:
+      - task-management-db
+    ports:
+      - "9000:9000"
 volumes:
   task-management-db-data:
+  maven-repository-data:

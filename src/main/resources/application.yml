@@ -2,7 +2,7 @@ spring:
   application:
     name: task-management-api
   datasource:
-    url: jdbc:postgresql://localhost:15432/task_management
+    url: jdbc:postgresql://task-management-db/task_management
     username: postgres
     password: secret
     driver-class-name: org.postgresql.Driver
