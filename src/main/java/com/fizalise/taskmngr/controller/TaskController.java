@@ -10,6 +10,7 @@ import com.fizalise.taskmngr.mapper.TaskMapper;
 import com.fizalise.taskmngr.mapper.UserMapper;
 import com.fizalise.taskmngr.service.CommentService;
 import com.fizalise.taskmngr.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class TaskController {
     private final UserMapper userMapper;
     private final CommentService commentService;
     private final CommentMapper commentMapper;
+    @Operation(summary = "Получить список всех задач")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<TaskResponse> getAllTasks(@RequestParam(defaultValue = "0") @Min(0) Integer page,
@@ -39,6 +41,7 @@ public class TaskController {
                 taskService.findAllTasks(page, authentication)
         );
     }
+    @Operation(summary = "Получить список исполнителей задачи")
     @GetMapping("/{id}/executors")
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> getTaskExecutors(@PathVariable UUID id,
@@ -48,6 +51,7 @@ public class TaskController {
                 taskService.findTaskExecutors(id, page, authentication)
         );
     }
+    @Operation(summary = "Получить список комментариев к задаче")
     @GetMapping("/{id}/comments")
     public List<CommentResponse> getTaskComments(@PathVariable UUID id,
                                                  @RequestParam(defaultValue = "0") @Min(0) Integer page,
@@ -56,6 +60,7 @@ public class TaskController {
                 commentService.findAllCommentsByTask(id, page, authentication)
         );
     }
+    @Operation(summary = "Получить задачу")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TaskResponse getTask(@PathVariable UUID id, Authentication authentication) {
@@ -63,6 +68,7 @@ public class TaskController {
                 taskService.findTask(id, authentication)
         );
     }
+    @Operation(summary = "Добавить новую задачу")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -72,6 +78,7 @@ public class TaskController {
                 taskService.createTask(taskRequest, authentication)
         );
     }
+    @Operation(summary = "Обновить существующую задачу")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public TaskResponse updateTask(@PathVariable UUID id,
@@ -80,16 +87,19 @@ public class TaskController {
                 taskService.updateTask(id, taskRequest)
         );
     }
+    @Operation(summary = "Начать выполнение задачи")
     @PutMapping("/{id}/start")
     @ResponseStatus(HttpStatus.OK)
     public void startTask(@PathVariable UUID id, Authentication authentication) {
         taskService.startExecution(id, authentication);
     }
+    @Operation(summary = "Закончить выполнение задачи")
     @PutMapping("/{id}/stop")
     @ResponseStatus(HttpStatus.OK)
     public void stopTask(@PathVariable UUID id, Authentication authentication) {
         taskService.stopExecution(id, authentication);
     }
+    @Operation(summary = "Установить статус задачи")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/")
     public TaskResponse setTaskStatus(@PathVariable UUID id, @RequestParam Status status,
@@ -98,6 +108,7 @@ public class TaskController {
                 taskService.updateTaskStatus(id, status, authentication)
         );
     }
+    @Operation(summary = "Удалить задачу")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
