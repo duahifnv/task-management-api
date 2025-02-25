@@ -11,6 +11,7 @@ import com.fizalise.taskmngr.repository.sort.TaskSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -28,15 +29,14 @@ public class TaskService {
     private final UserService userService;
     private final AuthService authService;
     private final ExecutionService executionService;
-    public Page<Task> findAllTasks(Integer page, UUID authorId, UUID executorId,
-                                   Authentication authentication) {
+    public Page<Task> findAllTasks(Integer page, Authentication authentication) {
         var pageRequest = getPageRequest(page);
         if (!authService.hasAdminRole(authentication)) {
             return taskRepository.findAllByExecutor(
                     findUser(authentication.getName()), pageRequest
             );
         }
-        return taskRepository.findAllFiltered(authorId, executorId, pageRequest);
+        return taskRepository.findAll(pageRequest);
     }
     public Task findTask(UUID id, Authentication authentication) {
         Task task = taskRepository.findById(id)
@@ -49,9 +49,9 @@ public class TaskService {
         }
         return task;
     }
-    public List<User> findTaskExecutors(UUID id, Authentication authentication) {
+    public Page<User> findTaskExecutors(UUID id, Integer page, Authentication authentication) {
         Task task = findTask(id, authentication);
-        return task.getExecutorList().stream().toList();
+        return getExecutorsPage(task, page);
     }
     @Transactional
     public Task createTask(TaskRequest taskRequest, Authentication authentication) {
@@ -116,5 +116,10 @@ public class TaskService {
     }
     private PageRequest getPageRequest(Integer page) {
         return PageRequest.of(page, TaskRepository.PAGE_SIZE, TaskSort.DATE_DESC.getSort());
+    }
+    private Page<User> getExecutorsPage(Task task, Integer page) {
+        return new PageImpl<>(
+                task.getExecutorList().stream().toList(), getPageRequest(page), taskRepository.count()
+        );
     }
 }

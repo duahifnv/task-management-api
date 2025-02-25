@@ -1,12 +1,13 @@
 package com.fizalise.taskmngr.controller;
 
 import com.fizalise.taskmngr.entity.Execution;
-import com.fizalise.taskmngr.repository.ExecutionRepository;
 import com.fizalise.taskmngr.service.ExecutionService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 public class ExecutionController {
     private final ExecutionService executionService;
     @GetMapping
-    public List<Execution> getAll() {
-        return executionService.findAll();
+    public List<Execution> getAllExecutions(@RequestParam(defaultValue = "0") @Min(0) Integer page) {
+        return executionService.findAllExecutions(page).stream().toList();
     }
 }

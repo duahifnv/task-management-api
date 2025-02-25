@@ -34,11 +34,26 @@ public class TaskController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<TaskResponse> getAllTasks(@RequestParam(defaultValue = "0") @Min(0) Integer page,
-                                          @RequestParam(required = false) UUID authorId,
-                                          @RequestParam(required = false) UUID executorId,
                                           Authentication authentication) {
         return taskMapper.toResponses(
-                taskService.findAllTasks(page, authorId, executorId, authentication)
+                taskService.findAllTasks(page, authentication)
+        );
+    }
+    @GetMapping("/{id}/executors")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> getTaskExecutors(@PathVariable UUID id,
+                                               @RequestParam(defaultValue = "0") @Min(0) Integer page,
+                                               Authentication authentication) {
+        return userMapper.toResponses(
+                taskService.findTaskExecutors(id, page, authentication)
+        );
+    }
+    @GetMapping("/{id}/comments")
+    public List<CommentResponse> getTaskComments(@PathVariable UUID id,
+                                                 @RequestParam(defaultValue = "0") @Min(0) Integer page,
+                                                 Authentication authentication) {
+        return commentMapper.toResponses(
+                commentService.findAllCommentsByTask(id, page, authentication)
         );
     }
     @GetMapping("/{id}")
@@ -46,19 +61,6 @@ public class TaskController {
     public TaskResponse getTask(@PathVariable UUID id, Authentication authentication) {
         return taskMapper.toResponse(
                 taskService.findTask(id, authentication)
-        );
-    }
-    @GetMapping("/{id}/executors")
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> getTaskExecutors(@PathVariable UUID id, Authentication authentication) {
-        return userMapper.toResponses(
-                taskService.findTaskExecutors(id, authentication)
-        );
-    }
-    @GetMapping("/{id}/comments")
-    public List<CommentResponse> getTaskComments(@PathVariable UUID id, Authentication authentication) {
-        return commentMapper.toResponses(
-                commentService.findAllCommentsByTask(id, authentication)
         );
     }
     @PreAuthorize("hasRole('ADMIN')")

@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface ExecutionRepository extends JpaRepository<Execution, UUID> {
+    int PAGE_SIZE = 2;
     Optional<Execution> findByTaskIdAndUserId(UUID taskId, UUID userId);
     int countByTaskId(UUID taskId);
     int countByTaskIdAndStatusEquals(UUID taskId, Status status);

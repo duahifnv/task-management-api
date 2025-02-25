@@ -5,6 +5,7 @@ import com.fizalise.taskmngr.dto.comment.CommentResponse;
 import com.fizalise.taskmngr.mapper.CommentMapper;
 import com.fizalise.taskmngr.service.CommentService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,9 +24,19 @@ public class CommentController {
     private final CommentMapper commentMapper;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CommentResponse> getAllComments(Authentication authentication) {
+    public List<CommentResponse> getAllComments(
+            @RequestParam(defaultValue = "0") @Min(0) Integer page,
+            Authentication authentication) {
         return commentMapper.toResponses(
-                commentService.findAllComments(authentication)
+                commentService.findAllComments(page, authentication)
+        );
+    }
+    @GetMapping("/tasks/{taskId}")
+    public List<CommentResponse> getTaskComments(@PathVariable UUID taskId,
+                                                 @RequestParam(defaultValue = "0") @Min(0) Integer page,
+                                                 Authentication authentication) {
+        return commentMapper.toResponses(
+                commentService.findAllCommentsByTask(taskId, page, authentication)
         );
     }
     @GetMapping("/{id}")
@@ -33,13 +44,6 @@ public class CommentController {
     public CommentResponse getComment(@PathVariable UUID id, Authentication authentication) {
         return commentMapper.toResponse(
                 commentService.findComment(id, authentication)
-        );
-    }
-    @GetMapping("/tasks/{taskId}")
-    public List<CommentResponse> getTaskComments(@PathVariable UUID taskId,
-                                                 Authentication authentication) {
-        return commentMapper.toResponses(
-                commentService.findAllCommentsByTask(taskId, authentication)
         );
     }
     @PostMapping

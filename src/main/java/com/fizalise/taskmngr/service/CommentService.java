@@ -6,10 +6,13 @@ import com.fizalise.taskmngr.entity.Task;
 import com.fizalise.taskmngr.exception.ResourceNotFoundException;
 import com.fizalise.taskmngr.mapper.CommentMapper;
 import com.fizalise.taskmngr.repository.CommentRepository;
+import com.fizalise.taskmngr.repository.UserRepository;
 import com.fizalise.taskmngr.repository.sort.CommentSort;
+import com.fizalise.taskmngr.repository.sort.UserSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,18 +29,17 @@ public class CommentService {
     private final TaskService taskService;
     private final UserService userService;
     private final AuthService authService;
-    public List<Comment> findAllComments(Authentication authentication) {
+    public Page<Comment> findAllComments(Integer page, Authentication authentication) {
         if (!authService.hasAdminRole(authentication)) {
             return commentRepository.findAllByUser(
-                    userService.findByEmail(authentication.getName()),
-                    CommentSort.CREATED_DESC.getSort()
+                    userService.findByEmail(authentication.getName()), getPageRequest(page)
             );
         }
-        return commentRepository.findAll(CommentSort.CREATED_DESC.getSort());
+        return commentRepository.findAll(getPageRequest(page));
     }
-    public List<Comment> findAllCommentsByTask(UUID taskId, Authentication authentication) {
+    public Page<Comment> findAllCommentsByTask(UUID taskId, Integer page, Authentication authentication) {
         Task task = taskService.findTask(taskId, authentication);
-        return commentRepository.findAllByTask(task, CommentSort.CREATED_DESC.getSort());
+        return commentRepository.findAllByTask(task, getPageRequest(page));
     }
     public Comment findComment(UUID id, Authentication authentication) {
         Comment comment = commentRepository.findById(id)
@@ -85,5 +87,8 @@ public class CommentService {
         return commentRepository.existsByCommentIdAndUser(
                 id, userService.findByEmail(authentication.getName())
         );
+    }
+    private PageRequest getPageRequest(Integer page) {
+        return PageRequest.of(page, CommentRepository.PAGE_SIZE, CommentSort.CREATED_DESC.getSort());
     }
 }

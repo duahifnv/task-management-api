@@ -8,6 +8,7 @@ import com.fizalise.taskmngr.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.data.domain.Page;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ public interface CommentMapper {
     @Mapping(source = "task", target = "taskId", qualifiedByName = "getTaskId")
     @Mapping(source = "user", target = "userId", qualifiedByName = "getUserId")
     CommentResponse toResponse(Comment comment);
-    List<CommentResponse> toResponses(List<Comment> comments);
+    List<CommentResponse> toResponses(Page<Comment> comments);
     @Named("getTaskId")
     default UUID getTaskId(Task task) {
         return task.getTaskId();

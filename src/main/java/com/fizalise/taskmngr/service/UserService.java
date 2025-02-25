@@ -3,10 +3,15 @@ package com.fizalise.taskmngr.service;
 import com.fizalise.taskmngr.entity.User;
 import com.fizalise.taskmngr.exception.UserAlreadyExistsException;
 import com.fizalise.taskmngr.exception.UserNotFoundException;
+import com.fizalise.taskmngr.repository.TaskRepository;
 import com.fizalise.taskmngr.repository.UserRepository;
+import com.fizalise.taskmngr.repository.sort.TaskSort;
 import com.fizalise.taskmngr.repository.sort.UserSort;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    public List<User> findAll() {
-        return userRepository.findAll(UserSort.NAME_ASC.getSort());
+    public Page<User> findAllUsers(Integer page) {
+        return userRepository.findAll(getPageRequest(page));
     }
     public User findById(UUID id) {
         return userRepository.findById(id)
@@ -53,5 +58,8 @@ public class UserService {
         }
         userRepository.deleteById(id);
         log.info("Удален пользователь с id: {}", id);
+    }
+    private PageRequest getPageRequest(Integer page) {
+        return PageRequest.of(page, UserRepository.PAGE_SIZE, UserSort.NAME_ASC.getSort());
     }
 }
