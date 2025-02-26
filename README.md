@@ -29,6 +29,13 @@
 | a979690a-0dc4-4d9f-84d4-fb182b30bd46 | My opinion | This task is bullshit          | fd505668-3311-4094-817b-0c44660bb2ca | user1 |
 | bf4e2b91-6629-4a18-a934-151af0bc52e7 | Wow        | Im impressed how hard it is    | a74bc275-25e0-4102-b790-a5817b248706 | user2 |
 | 2ee5d228-cc49-4f3a-9a7a-d8035a618ce6 | Hmm        | My friend stuck with this task | a74bc275-25e0-4102-b790-a5817b248706 | user1 |
+## Авторизация
+- Чтобы авторизовать пользователя в системе необходимо использовать эндпоинты `/auth/register` для регистрации и `/auth/login` для авторизации
+- В ответном сообщении будет находится `JWT-токен`, который используется для доступа ко всем ресурсам
+## Swagger UI
+- Чтобы корректно использовать API сервиса используйте `Swagger UI`, настроенный для него
+- UI расположен по адресу `http://localhost:9000/api/v1/swagger-ui`
+- Все эндпоинты и схема данных документированы. Подробно описаны серверные ответы и обработчики исключений
 ## Инструкция к запуску
 
 1. Установите Docker Desktop на свой ПК (для daemon-а) https://docs.docker.com/desktop/setup/install/windows-install/
